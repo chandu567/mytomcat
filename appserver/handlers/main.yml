@@ -1,0 +1,15 @@
+---
+# handlers file for appserver
+- name: start tom
+  service:
+    name: tomcat
+    state: started
+
+- name: enable tom
+  service:
+    name: tomcat
+    state: enabled
+- name: restart tom
+  service:
+    name: tomcat
+    state: restarted

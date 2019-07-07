@@ -1,0 +1,12 @@
+---
+# tasks file for utils
+- name: installing java
+  apt:
+    name: openjdk-8-jdk
+    state: present
+    update_cache: yes
+    install_recommends: no
+- name: install unzip
+  apt:
+    name: unzip
+    state: present 

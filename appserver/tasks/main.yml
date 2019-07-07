@@ -1,0 +1,78 @@
+---
+# tasks file for appserver
+- name: adding group tomcat
+  group:
+    name: tomcat
+    state: present
+- name: adding tomcat user in group
+  user:
+   name: tomcat
+   shell: /bin/bash
+   group: tomcat
+   home: /opt/tomcat
+- name: downloadind tomcat9
+  get_url:
+    url: http://mirrors.estointernet.in/apache/tomcat/tomcat-9/v9.0.21/bin/apache-tomcat-9.0.21.tar.gz
+    dest: /tmp
+-  name: Creates directory
+   file:
+     path: /opt/tomcat
+     state: directory
+     mode: 0775
+- name: untar file
+  unarchive:
+    src: /tmp/apache-tomcat-9.0.21.tar.gz 
+    dest: /opt/tomcat    
+    remote_src: yes
+    extra_opts: "--strip-components=1"  
+    creates: /opt/tomcat/conf
+- name: owner group permissions
+  file:
+    path: /opt/tomcat 
+    state: directory
+    recurse: yes
+   # owner: 
+    group: tomcat
+- name: giving directory permissions execute
+  file:
+    path: /opt/tomcat/conf
+    state: directory
+    mode: g+r
+    recurse: yes
+
+- name: giving directory permissions execute without recurse
+  file:
+    path: /opt/tomcat/conf
+    state: directory
+    mode: g+x
+    
+- name: Change file ownership, group and permissions
+  file:
+    owner: tomcat
+    recurse: yes
+    path: "{{ item }}"
+    
+  with_items:
+    - /opt/tomcat/webapps
+    - /opt/tomcat/work
+    - /opt/tomcat/temp
+    - /opt/tomcat/logs
+
+- name: copy module tomcat.service
+  copy:
+    src: tomcat.service 
+    dest: /etc/systemd/system/tomcat.service
+
+- name: reloadind deamon reloader
+  systemd:
+    daemon_reload: yes
+  notify:
+    - start tom
+    - enable tom
+      
+- name: using templates
+  template:
+    src: tomcat-users.xml.j2
+    dest: /opt/tomcat/conf/tomcat-users.xml
+  notify:
+    - restart tom
